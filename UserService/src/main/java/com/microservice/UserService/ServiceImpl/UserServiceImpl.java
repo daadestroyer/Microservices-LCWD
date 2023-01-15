@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + userId));
 	}
 
-	@Override
+	@Override 
 	public User deleteUser(String userId) {
 		User user = userRepo.findById(userId)
 		.orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + userId));
