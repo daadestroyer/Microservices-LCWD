@@ -10,10 +10,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-    
-
   application:
-    name: userservice
+    name: USER-SERVICE
     
 eureka:
   instance:
@@ -23,4 +21,3 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://localhost:8761/eureka
-      
