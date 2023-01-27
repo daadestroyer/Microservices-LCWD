@@ -43,13 +43,34 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<User> getAllUser() {
 		// TODO Auto-generated method stub
-		String URL = "http://localhost:8083/ratings";
+		String URL = "http://RATING-SERVICE/ratings";
 
-		ArrayList<Ratings> allRatings = this.restTemplate.getForObject(URL, ArrayList.class);
-
+		Ratings[] ratingsArray = this.restTemplate.getForObject(URL, Ratings[].class);
+		
+		List<Ratings> allRatings = Arrays.asList(ratingsArray);
+		
 		List<User> allUser = userRepo.findAll();
 
-		return allUser;
+		List<User> grossUser = allUser.stream().map(user->{
+			
+			List<Ratings> modifiedRatings = allRatings.stream().filter(ratings->ratings.getUserId().equals(user.getUserId())) .collect(Collectors.toList());
+			
+			
+			List<Ratings> modifiedRatings2 = modifiedRatings.stream().map(rating->{
+				String hotelURL = "http://HOTEL-SERVICE/hotels/" + rating.getHotelId();
+				ResponseEntity<Hotel> forEntity = this.restTemplate.getForEntity(hotelURL, Hotel.class);
+				Hotel hotel = forEntity.getBody();
+				rating.setHotel(hotel);
+				return rating;
+			}).collect(Collectors.toList());
+			
+			user.setRatings(modifiedRatings2);
+			return user;
+			 
+		}).collect(Collectors.toList());
+		
+	
+		return grossUser;
 	}
 
 	@Override
@@ -60,14 +81,15 @@ public class UserServiceImpl implements UserService {
 
 		// fetch rating of above user with userId
 		// URL: http://localhost:8083/ratings/getratingbyuserid/{userId}
-		String URL = "http://localhost:8083/ratings/getratingbyuserid/" + userId;
-		Ratings[] listOfRatingsByUserId = this.restTemplate.getForObject(URL, Ratings[].class);
+		String getRatingsByUserIdURL = "http://RATING-SERVICE/ratings/getratingbyuserid/" + userId;
+		
+		Ratings[] listOfRatingsByUserIdArray = this.restTemplate.getForObject(getRatingsByUserIdURL, Ratings[].class);
 
-		List<Ratings> ratings = Arrays.asList(listOfRatingsByUserId);
+		List<Ratings> ratings = Arrays.asList(listOfRatingsByUserIdArray);
 
 		List<Ratings> listOfRatings = ratings.stream().map(rating -> {
 
-			String hotelURL = "http://localhost:8082/hotels/" + rating.getHotelId();
+			String hotelURL = "http://HOTEL-SERVICE/hotels/" + rating.getHotelId();
 			ResponseEntity<Hotel> forEntity = this.restTemplate.getForEntity(hotelURL, Hotel.class);
 			Hotel hotel = forEntity.getBody();
 
