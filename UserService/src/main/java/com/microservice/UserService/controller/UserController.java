@@ -17,6 +17,7 @@ import com.microservice.UserService.ServiceImpl.UserServiceImpl;
 import com.microservice.UserService.entity.User;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -33,11 +34,17 @@ public class UserController {
 		User saveUser = this.userServiceImpl.saveUser(user);
 		return new ResponseEntity<>(saveUser, HttpStatus.CREATED);
 	}
+	
+	int retryCount = 1;
 
 	@GetMapping("/{userId}")
-	@CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+//	@CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+	@Retry(name = "ratingHotelRetry" , fallbackMethod = "ratingHotelFallback")
 	public ResponseEntity<?> getSingleUser(@PathVariable String userId) {
+		log.info("Retry Count :"+retryCount);
+		retryCount++;
 		User singleUser = this.userServiceImpl.getSingleUser(userId);
+		
 		return new ResponseEntity<>(singleUser, HttpStatus.OK);
 	}
 
