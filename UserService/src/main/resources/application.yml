@@ -14,8 +14,7 @@ spring:
     name: USER-SERVICE
   config:
     import: configserver:http://localhost:8085
-  profiles:
-    active: default  
+ 
     
 
 # Actuator configuration
