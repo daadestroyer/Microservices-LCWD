@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.UserService.ServiceImpl.UserServiceImpl;
 import com.microservice.UserService.entity.User;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
 	@Autowired
 	private UserServiceImpl userServiceImpl;
-	
-	 
 
 	//
 	@PostMapping("/")
@@ -34,9 +35,19 @@ public class UserController {
 	}
 
 	@GetMapping("/{userId}")
+	@CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
 	public ResponseEntity<?> getSingleUser(@PathVariable String userId) {
 		User singleUser = this.userServiceImpl.getSingleUser(userId);
 		return new ResponseEntity<>(singleUser, HttpStatus.OK);
+	}
+
+	// fallback method for rating_hotel_breaker
+	public ResponseEntity<?> ratingHotelFallback(Exception ex) {
+		System.out.println("==================FALL BACK METHOD CALLED=========================");
+		log.info("Fallback method executed", ex.getMessage());
+		User user = User.builder().userId("1111").email("dummy@gmail.com").name("dummy user")
+				.about("dummy user created because some services are down").build();
+		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
 	@GetMapping
@@ -46,8 +57,8 @@ public class UserController {
 	}
 
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<?> deleteUserById(@PathVariable String userId){
+	public ResponseEntity<?> deleteUserById(@PathVariable String userId) {
 		User deleteUser = this.userServiceImpl.deleteUser(userId);
-		return new ResponseEntity<>(deleteUser,HttpStatus.OK);
+		return new ResponseEntity<>(deleteUser, HttpStatus.OK);
 	}
 }
