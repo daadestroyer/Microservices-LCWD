@@ -42,7 +42,7 @@
 			<artifactId>resilience4j-spring-boot2</artifactId>
 		</dependency>
 
-
+		<!-- config client -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>

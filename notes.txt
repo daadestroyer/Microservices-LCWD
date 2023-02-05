@@ -1,0 +1,7 @@
+## Microservices annotation
+
+1. @EnableEurekaServer --> to create eureka server
+2. @LoadBalanced --> for api gateway
+3. @EnableConfigServer --> to create config server
+4. @CircuitBreaker(name = "circuit breaker name", fallbackMethod = "fall back method name")
+5. @Retry(name = "retry method name" , fallbackMethod = "fall back method Shubham Nigam")
